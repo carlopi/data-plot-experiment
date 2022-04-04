@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for HTML5 for Linux version 5.6.0">
+<link rel="stylesheet" href=
+"https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity=
+"sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+crossorigin=""><!-- Make sure you put this AFTER Leaflet's CSS -->
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+integrity=
+"sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+crossorigin=""></script>
+<title></title>
+</head>
+<body>
+<input type="file" id="file-input">
+<div id="map" style="height:800px; width: 100%;"></div>
+<script>
+
+                                        var map = L.map('map').setView([51.505, -0.09], 13);
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/light-v9',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiY2FybG9waSIsImEiOiJjbDFqb2hsam8yNnhpM2RwM2ZxaWFrcjk4In0.jrknicfsz6WxKWRG1o8R_Q'
+}).addTo(map);
+
+
+function readSingleFile(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    displayContents(contents);
+    displayParsed(contents);
+  };
+  reader.readAsText(file);
+}
+
+function displayContents(contents) {
+  console.log(contents);
+}
+
+function displayParsed(contents) {
+  const json = contents.split('\n');
+  var z =0;
+ var indexes = json[0].split(',');
+ var INDEX_LAT = indexes.indexOf('latitude');
+ var INDEX_LON = indexes.indexOf('longitude');          
+        
+var sumLat = 0.0;
+var sumLon = 0.0;
+var N = 0;
+for (var z = 1; z<json.length; z++)
+{
+        const json2 = json[z].split(',');
+        const lat = Number(json2[INDEX_LAT]);
+        const lon = Number(json2[INDEX_LON]);
+        if (lat > -90 && lat < 90 && lon > -180 && lon < 180)
+        {
+var circle = L.circle([lat, lon], {
+color: 'black',
+opacity: 0.5,
+fillColor: 'grey',
+fillOpacity: 0.5,
+radius: 10
+}).addTo(map);
+console.log(lat, lon);
+                                                        sumLat += lat;
+sumLon += lon;
+N++;
+                                                }
+}
+sumLat /= N;
+sumLon /= N;
+map.setView([sumLat, sumLon]);
+}
+
+document.getElementById('file-input').addEventListener('change', readSingleFile, false);
+</script>
+</body>
+</html>
+
