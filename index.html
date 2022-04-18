@@ -52,10 +52,13 @@ function displayContents(contents) {
 function displayParsed(contents) {
   const json = contents.split('\n');
   var z =0;
- var indexes = json[0].split(',');
+		var x = json[0];
+		while (x[x.length - 1] == '\r' || x[x.length -1] == '\n')
+			x=x.slice(0, -1);
+ var indexes = x.split(',');
  var INDEX_LAT = indexes.indexOf('latitude');
  var INDEX_LON = indexes.indexOf('longitude');          
-        
+ console.log(INDEX_LAT, INDEX_LON);
 var sumLat = 0.0;
 var sumLon = 0.0;
 var N = 0;
@@ -64,7 +67,7 @@ for (var z = 1; z<json.length; z++)
         const json2 = json[z].split(',');
         const lat = Number(json2[INDEX_LAT]);
         const lon = Number(json2[INDEX_LON]);
-        if (lat > -90 && lat < 90 && lon > -180 && lon < 180)
+        if (isFinite(lat) && isFinite(lon) && lat > -90 && lat < 90 && lon > -180 && lon < 180)
         {
 var circle = L.circle([lat, lon], {
 color: 'black',
@@ -79,9 +82,12 @@ sumLon += lon;
 N++;
                                                 }
 }
+	if (N > 0)
+	{
 sumLat /= N;
 sumLon /= N;
 map.setView([sumLat, sumLon]);
+		}
 }
 
 document.getElementById('file-input').addEventListener('change', readSingleFile, false);
